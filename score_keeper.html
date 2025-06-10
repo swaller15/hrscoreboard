@@ -34,6 +34,13 @@
         .reset {
             margin-top: 30px;
         }
+        .add-player-btn {
+            background-image: url('download.jpg');
+            background-size: 24px 24px;
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            padding-left: 40px;
+        }
     </style>
 </head>
 <body>
@@ -53,8 +60,8 @@
         </div>
     </div>
     <div>
-      <input type="text" id="newPlayerName" placeholder="Enter player name">
-      <button onclick="addPlayer()">Another One</button>
+      <input type="text" id="newPlayerName" placeholder="Enter player name">
+      <button class="add-player-btn" onclick="addPlayer()">Another One</button>
     </div>
 
     <button class="reset" onclick="resetScores()">Reset</button>
