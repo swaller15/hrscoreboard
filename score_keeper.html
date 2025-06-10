@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2-Player Score Keeper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 30px;
+        }
+        .player {
+            border: 2px solid #333;
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+        }
+        .score {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        button {
+            font-size: 16px;
+            margin: 5px;
+            padding: 10px 20px;
+        }
+        .reset {
+            margin-top: 30px;
+        }
+        .add-player-btn {
+           
+        }
+    </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  /<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBgz6yIHgI1rBV5eOHoRhvZCF4JXgHgMdU",
+    authDomain: "hrscoreboard.firebaseapp.com",
+    projectId: "hrscoreboard",
+    storageBucket: "hrscoreboard.firebasestorage.app",
+    messagingSenderId: "475202072388",
+    appId: "1:475202072388:web:3e74ea4b33a3b980adb111",
+    measurementId: "G-P12JCMJ7ZZ"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</script>
+</head>
+<body>
+    <h1>HR Scoresheet</h1>
+    <div class="scoreboard">
+        <div class="player" id="player1">
+            <h2>Jillian</h2>
+            <div class="score" id="score1">0</div>
+            <button onclick="changeScore(1, 1)">+1</button>
+            <button onclick="changeScore(1, -1)">-1</button>
+        </div>
+        <div class="player" id="player2">
+            <h2>Sarah</h2>
+            <div class="score" id="score2">0</div>
+            <button onclick="changeScore(2, 1)">+1</button>
+            <button onclick="changeScore(2, -1)">-1</button>
+        </div>
+    </div>
+    <div>
+      <input type="text" id="newPlayerName" placeholder="Enter player name">
+      <button class="add-player-btn" onclick="addPlayer()">Another One</button>
+    </div>
+
+    <button class="reset" onclick="resetScores()">Reset</button>
+
+
+    
+<script>
+  // Initialize Firebase (already done above)
+  const db = firebase.database();
+  const scoresRef = db.ref('scoresheet');
+
+  let scores = [];
+  let playerNames = [];
+  let playerCount = 0;
+
+  // Listen for changes in Firebase and update UI
+  scoresRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      scores = data.scores || [];
+      playerNames = data.playerNames || [];
+      playerCount = scores.length;
+      renderPlayers();
+    } else {
+      // Initialize with two players if no data
+      scores = [0, 0];
+      playerNames = ["Jillian", "Sarah"];
+      playerCount = 2;
+      saveScores();
+      renderPlayers();
+    }
+  });
+
+  // Save scores and player names to Firebase
+  function saveScores() {
+    scoresRef.set({
+      scores: scores,
+      playerNames: playerNames
+    });
+  }
+
+  // Render all players
+  function renderPlayers() {
+    const scoreboard = document.querySelector('.scoreboard');
+    scoreboard.innerHTML = '';
+    for (let i = 0; i < playerCount; i++) {
+      const playerDiv = document.createElement('div');
+      playerDiv.className = 'player';
+      playerDiv.id = 'player' + (i + 1);
+      playerDiv.innerHTML = `
+        <h2>${playerNames[i] || 'Player ' + (i + 1)}</h2>
+        <div class="score" id="score${i + 1}">${scores[i]}</div>
+        <button onclick="changeScore(${i + 1}, 1)">+1</button>
+        <button onclick="changeScore(${i + 1}, -1)">-1</button>
+      `;
+      scoreboard.appendChild(playerDiv);
+    }
+  }
+
+  function changeScore(player, delta) {
+    scores[player - 1] += delta;
+    if (scores[player - 1] < 0) scores[player - 1] = 0;
+    saveScores();
+  }
+
+  function resetScores() {
+    scores = scores.map(() => 0);
+    saveScores();
+  }
+
+  function addPlayer() {
+    const name = document.getElementById('newPlayerName').value.trim();
+    if (!name) return;
+    playerCount++;
+    scores.push(0);
+    playerNames.push(name);
+    saveScores();
+    document.getElementById('newPlayerName').value = '';
+  }
+</script>
+
+</body>
+</html>
